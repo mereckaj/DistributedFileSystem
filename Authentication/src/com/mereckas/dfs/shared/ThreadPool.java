@@ -3,10 +3,10 @@ package com.mereckas.dfs.shared;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ThreadPool<T extends Runnable>{
+public class ThreadPool<T extends Runnable> {
 	private ExecutorService executorService;
 
-	private ThreadPool(int threadPoolSize) {
+	public ThreadPool(int threadPoolSize) {
 		this.executorService = Executors.newFixedThreadPool(threadPoolSize);
 	}
 
