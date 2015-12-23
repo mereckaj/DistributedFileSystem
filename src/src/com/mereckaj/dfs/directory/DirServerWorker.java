@@ -1,7 +1,6 @@
 package com.mereckaj.dfs.directory;
 
 import com.mereckaj.dfs.shared.MessageQueueWorkerThread;
-import com.sun.corba.se.impl.activation.ServerMain;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +22,7 @@ public class DirServerWorker implements Runnable {
 			msqw = new MessageQueueWorkerThread(osw);
 			running = true;
 			rootDirectory = startDir;
+			socket = s;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -37,43 +37,26 @@ public class DirServerWorker implements Runnable {
 	}
 
 	private void dealWithMessage(String message) {
+		System.out.println("command: " + message);
 		String[] commands;
 		if (message != null && message.length() > 1) {
-			commands = message.split(" ");
+			commands = message.split("\n");
 		} else {
 			return;
 		}
 		try {
-			if (commands[0].equalsIgnoreCase("ls")) {
-				doListCommand(commands);
-			} else if (commands[0].equalsIgnoreCase("cd")) {
-				doChangeDirCommand(commands);
-			} else if (commands[0].equalsIgnoreCase("mkdir")) {
-				doMakeDirCommand(commands);
-			} else if (commands[0].equalsIgnoreCase("touch")) {
-				doTouchCommand(commands);
-			} else {
-				throw new Exception("Unrecognized command");
+			if (commands[0].contains("RESOLVE")) {
+				doResolveCommand(commands);
+			}else{
+				throw new Exception();
 			}
 		} catch (Exception e) {
 			System.err.println("Invalid command: " + message);
 		}
 	}
 
-	private void doTouchCommand(String[] commands) {
-		//TODO: implement
-	}
-
-	private void doMakeDirCommand(String[] commands) {
-		//TODO: implement
-	}
-
-	private void doChangeDirCommand(String[] commands) {
-		//TODO: implement
-	}
-
-	private void doListCommand(String[] commands) {
-		//TODO: implement
+	private void doResolveCommand(String[] commands) {
+		System.out.println("Resolved");
 	}
 
 	private String readMessage() {
@@ -95,7 +78,6 @@ public class DirServerWorker implements Runnable {
 				}
 			} catch (IOException e) {
 				get = false;
-				e.printStackTrace();
 			}
 		}
 		return new String(result);

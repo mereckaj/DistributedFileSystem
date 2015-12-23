@@ -1,4 +1,4 @@
-package com.mereckaj.dfs.client.test;
+package com.mereckaj.dfs.test;
 
 import com.mereckaj.dfs.client.Client;
 
