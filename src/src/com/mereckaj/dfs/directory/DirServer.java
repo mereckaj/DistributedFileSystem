@@ -51,4 +51,12 @@ public class DirServer implements Runnable {
 		running = false;
 		terminate();
 	}
+
+	public static void main(String[] args){
+		String ip = args[0];
+		int port = new Integer(args[1]);
+		System.out.println("Starting Directory Server on: " + ip + ":" + port);
+		DirServer dirServer = new DirServer(port,ip,10);
+		dirServer.run();
+	}
 }

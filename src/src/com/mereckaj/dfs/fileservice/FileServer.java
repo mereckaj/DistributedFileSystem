@@ -52,4 +52,12 @@ public class FileServer extends Thread {
 		running = false;
 		terminate();
 	}
+
+	public static void main(String args[]){
+		String ip = args[0];
+		int port = Integer.parseInt(args[1]);
+		System.out.println("Starting File Server on: " + ip + ":" + port);
+		FileServer fs = new FileServer(port,ip,10);
+		fs.run();
+	}
 }
