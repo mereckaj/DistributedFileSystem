@@ -1,5 +1,4 @@
 
-import com.mereckaj.dfs.directory.DirServer;
 
 public class DirServerTest {
 	public static void main(String[] args) {

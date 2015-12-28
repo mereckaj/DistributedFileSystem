@@ -1,6 +1,4 @@
 
-import com.mereckaj.dfs.fileservice.FileServer;
-
 public class FileServerTest {
 	public static void main(String[] args){
 		FileServer fs = new FileServer(8081,"0.0.0.0",5);
