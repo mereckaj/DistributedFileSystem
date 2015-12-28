@@ -1,0 +1,5 @@
+WRITE_REQUEST:
+DIR: /etc/test/
+FILE: test.txt
+DATA: VEVTVCBEQVRBIDIK
+ 

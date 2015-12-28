@@ -1,0 +1,4 @@
+WRITE_REQUEST:
+DIR: /etc/test/
+FILE: text.tst
+SUCCESS: TRUE

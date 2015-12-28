@@ -1,0 +1,5 @@
+READ_REQUEST:
+DIR: /etc/test/
+FILE: test.txt
+ESISTS: TRUE
+DATA: VEVTVCBEQVRBCg==

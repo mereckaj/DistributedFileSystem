@@ -1,0 +1,4 @@
+RESOLVE_REQUEST:
+DIR: /etc/
+FILE: test.txt
+

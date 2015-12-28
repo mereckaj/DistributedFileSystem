@@ -1,0 +1,4 @@
+READ_REQUEST:
+DIR: /etc/test/
+FILE: test2.txt
+
