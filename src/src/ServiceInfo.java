@@ -1,3 +1,6 @@
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class ServiceInfo {
 
 	public enum ServiceType {DIR_SERVICE, AUTH_SERVICE, FILE_SERVICE}
@@ -9,7 +12,15 @@ public class ServiceInfo {
 	public String key;
 
 	public ServiceInfo(String ip, int port, ServiceType serviceInfo, String key) {
-		this.ip = ip;
+		if(ip.equals("0.0.0.0")){
+			try {
+				ip = InetAddress.getLocalHost().getHostAddress();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+		}else {
+			this.ip = ip;
+		}
 		this.port = port;
 		this.serviceInfo = serviceInfo;
 		this.key = key;
