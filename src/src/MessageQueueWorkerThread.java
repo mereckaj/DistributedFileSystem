@@ -1,4 +1,3 @@
-package com.mereckaj.dfs.shared;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

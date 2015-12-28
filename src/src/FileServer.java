@@ -1,4 +1,3 @@
-package com.mereckaj.dfs.directory;
 
 import com.mereckaj.dfs.shared.ThreadPool;
 
@@ -6,14 +5,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
-public class DirServer implements Runnable {
+public class FileServer extends Thread {
 	private int port;
 	private String hostname;
 	private ServerSocket serverSocket;
-	private ThreadPool<DirServerWorker> threadPool;
+	private ThreadPool<FileServerWorker> threadPool;
 	private boolean running;
 
-	public DirServer(int port, String hostname, int threadPoolSize) {
+	public FileServer(int port, String hostname, int threadPoolSize) {
 		this.port = port;
 		this.hostname = hostname;
 		this.threadPool = new ThreadPool<>(threadPoolSize);
@@ -31,7 +30,7 @@ public class DirServer implements Runnable {
 		running = true;
 		while (running) {
 			try {
-				threadPool.addJobToQueue(new DirServerWorker(serverSocket.accept()));
+				threadPool.addJobToQueue(new FileServerWorker(serverSocket.accept()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -47,16 +46,16 @@ public class DirServer implements Runnable {
 		}
 	}
 
-	public void stop() {
+	public void stopServer() {
 		running = false;
 		terminate();
 	}
 
-	public static void main(String[] args){
+	public static void main(String args[]){
 		String ip = args[0];
-		int port = new Integer(args[1]);
-		System.out.println("Starting Directory Server on: " + ip + ":" + port);
-		DirServer dirServer = new DirServer(port,ip,10);
-		dirServer.run();
+		int port = Integer.parseInt(args[1]);
+		System.out.println("Starting File Server on: " + ip + ":" + port);
+		FileServer fs = new FileServer(port,ip,10);
+		fs.run();
 	}
 }

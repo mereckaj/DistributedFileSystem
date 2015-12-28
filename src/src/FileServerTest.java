@@ -1,4 +1,3 @@
-package com.mereckaj.dfs.test;
 
 import com.mereckaj.dfs.fileservice.FileServer;
 

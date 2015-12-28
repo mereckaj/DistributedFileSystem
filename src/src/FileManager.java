@@ -1,4 +1,3 @@
-package com.mereckaj.dfs.fileservice;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 

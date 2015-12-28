@@ -1,4 +1,3 @@
-package com.mereckaj.dfs.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;

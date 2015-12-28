@@ -1,5 +1,3 @@
-package com.mereckaj.dfs.directory;
-
 public class ServiceInfo {
 
 	public enum ServiceType {DIR_SERVICE, AUTH_SERVICE, FILE_SERVICE}
