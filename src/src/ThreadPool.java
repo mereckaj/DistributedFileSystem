@@ -11,6 +11,7 @@ public class ThreadPool<T extends Runnable> {
 
 	public void addJobToQueue(T t) {
 		executorService.execute(t);
+		System.out.println("Executed job: " + t.toString());
 	}
 
 	public void terminate() {

@@ -27,7 +27,9 @@ public class DirServer implements Runnable {
 		running = true;
 		while (running) {
 			try {
-				threadPool.addJobToQueue(new DirServerWorker(serverSocket.accept()));
+				DirServerWorker worker = new DirServerWorker(serverSocket.accept());
+				threadPool.addJobToQueue(worker);
+				System.out.println("Accepted new connection: " + worker.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -48,11 +50,11 @@ public class DirServer implements Runnable {
 		terminate();
 	}
 
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		String ip = args[0];
 		int port = new Integer(args[1]);
 		System.out.println("Starting Directory Server on: " + ip + ":" + port);
-		DirServer dirServer = new DirServer(port,ip,10);
+		DirServer dirServer = new DirServer(port, ip, 10);
 		dirServer.run();
 	}
 }

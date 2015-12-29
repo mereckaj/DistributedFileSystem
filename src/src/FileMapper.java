@@ -7,7 +7,6 @@ public class FileMapper {
 	private static final String rootDir = "~";
 	private static FileMapper instance = new FileMapper();
 	private ConcurrentHashMap<String, ServiceInfo> map = new ConcurrentHashMap<>();
-	private Object allServiceList;
 
 	private FileMapper() {
 		if (instance == null) {

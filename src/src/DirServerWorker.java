@@ -27,10 +27,10 @@ public class DirServerWorker implements Runnable {
 
 	@Override
 	public void run() {
-		while (running) {
+//		while (running) {
 			String m = readMessage();
 			dealWithMessage(m);
-		}
+//		}
 	}
 
 	private void dealWithMessage(String message) {
@@ -53,6 +53,7 @@ public class DirServerWorker implements Runnable {
 			} else {
 				throw new Exception();
 			}
+			terminate();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Invalid command: " + message);
@@ -145,11 +146,14 @@ public class DirServerWorker implements Runnable {
 		try {
 			running = false;
 			msqw.running = false;
+			System.out.println("Closed msqw");
 			msqw.osw.close();
 			msqw.messageQueue.clear();
+			System.out.println("Cleared remaining queue");
 			isr.close();
 			osw.close();
 			socket.close();
+			System.out.println("Closed all streams");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
