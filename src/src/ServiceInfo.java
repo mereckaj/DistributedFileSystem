@@ -14,7 +14,7 @@ public class ServiceInfo {
 	public ServiceInfo(String ip, int port, ServiceType serviceInfo, String key) {
 		if(ip.equals("0.0.0.0")){
 			try {
-				ip = InetAddress.getLocalHost().getHostAddress();
+				this.ip = InetAddress.getLocalHost().getHostAddress();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}

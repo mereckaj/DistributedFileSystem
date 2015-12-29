@@ -11,9 +11,9 @@ public class FileMapper {
 
 	private FileMapper() {
 		if (instance == null) {
-			map.put("/", new ServiceInfo("0.0.0.0", 8081, ServiceInfo.ServiceType.FILE_SERVICE, "/"));
-			map.put("/etc/", new ServiceInfo("0.0.0.0", 8082, ServiceInfo.ServiceType.FILE_SERVICE, "/etc/"));
-			map.put("/tmp/", new ServiceInfo("0.0.0.0", 8083, ServiceInfo.ServiceType.FILE_SERVICE, "/tmp"));
+			map.put("/", new ServiceInfo("188.166.36.191", 8081, ServiceInfo.ServiceType.FILE_SERVICE, "/"));
+			map.put("/etc/", new ServiceInfo("188.166.36.191", 8082, ServiceInfo.ServiceType.FILE_SERVICE, "/etc/"));
+			map.put("/tmp/", new ServiceInfo("188.166.36.191",8083, ServiceInfo.ServiceType.FILE_SERVICE, "/tmp"));
 		}
 	}
 
