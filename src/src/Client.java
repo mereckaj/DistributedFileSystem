@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.crypto.Data;
 
 public class Client extends Thread {
 	private static final int RECEIVE_BUFFER_SIZE = 65536;
@@ -63,6 +65,74 @@ public class Client extends Thread {
 		return dir;
 	}
 
+	private void doWriteCommand(String[] commands) {
+		if(commands.length < 3){
+			System.out.println("Too few arguments\t WRITE location/file data");
+			return;
+		}
+		try {
+			Socket socketToDirService = new Socket(InetAddress.getByName(dirServer.ip), dirServer.port);
+			System.out.println("Connected to server: " + dirServer.ip + ":" + dirServer.port);
+
+
+			String dir = parseDir(commands[1]);
+			dir = validate(dir);
+			System.out.println("Parsed dir: " + dir);
+			String file = parseFile(commands[1]);
+
+			ServiceInfo fileServiceInfo = resolveFileServer(dir, file, socketToDirService);
+			if (fileServiceInfo == null) {
+				System.out.println(dir + "" + file + "File does not exist");
+				socketToDirService.close();
+				return;
+			}
+
+			Socket socketToFileService = new Socket(InetAddress.getByName(fileServiceInfo.ip),fileServiceInfo.port);
+
+			String data ="";
+			for(int i = 2; i < commands.length; i++){
+				data += commands[i];
+			}
+
+			String encodedData = DatatypeConverter.printBase64Binary(data.getBytes());
+
+			boolean responseSuccessful = putDataToFileServer(fileServiceInfo,dir,file,encodedData,socketToFileService);
+			if(!responseSuccessful){
+				System.out.println("Could not write " + dir + "" + file + " with: " + data);
+			}else{
+				System.out.println("Successfully wrote to " + dir + ""+ file);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private boolean putDataToFileServer(ServiceInfo si,String dir, String file, String data, Socket s){
+		BufferedOutputStream bos;
+		boolean result = false;
+		try{
+			bos = new BufferedOutputStream(s.getOutputStream());
+
+			String getFileMessage = createWriteMessage(dir,file,data);
+			System.out.println("Prepared a writeRequest");
+
+			bos.write(getFileMessage.getBytes(),0,getFileMessage.length());
+			bos.flush();
+			System.out.println("Sent write request");
+
+			String writeReply = readMessage(new InputStreamReader(s.getInputStream()));
+			System.out.println("Got write reply:\n" + writeReply);
+
+			result = checkIfWriteSuccessful(writeReply);
+			System.out.println("Parsed write reply: " + result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	private void doReadCommand(String[] commands) {
 		if (commands.length < 2) {
 			System.out.println("Too few arguments\t READ location/file");
@@ -96,7 +166,7 @@ public class Client extends Thread {
 				return;
 			}
 
-			String decodedFileData = DatatypeConverter.printBase64Binary(encodedFileData.getBytes());
+			String decodedFileData = new String(DatatypeConverter.parseBase64Binary(encodedFileData));
 			System.out.println("Data: " + decodedFileData);
 
 		} catch (IOException e) {
@@ -134,6 +204,13 @@ public class Client extends Thread {
 		return "READ_REQUEST:\n" +
 				"DIR:"+ dir + "\n" +
 				"FILE:" + file + "\n";
+	}
+
+	private String createWriteMessage(String dir, String file, String data) {
+		return "WRITE_REQUEST:\n" +
+				"DIR:"+ dir + "\n" +
+				"FILE:" + file + "\n" +
+				"DATA:" + data +"\n";
 	}
 
 	private ServiceInfo resolveFileServer(String dir, String file, Socket s) {
@@ -193,9 +270,6 @@ public class Client extends Thread {
 		return command.substring(0, command.lastIndexOf("/") + 1);
 	}
 
-	private void doWriteCommand(String[] commands) {
-
-	}
 	private String parseReadReply(String reply){
 		String[] lines = reply.split("\n");
 		boolean exists = lines[3].split(":")[1].trim().equalsIgnoreCase("TRUE");
@@ -205,6 +279,12 @@ public class Client extends Thread {
 		} else {
 			return null;
 		}
+	}
+	private boolean checkIfWriteSuccessful(String reply){
+		String[] lines = reply.split("\n");
+		boolean exists = lines[3].split(":")[1].trim().equalsIgnoreCase("TRUE");
+		System.out.println("exists: " + lines[3] + " -->> " + exists);
+		return exists;
 	}
 	private ServiceInfo parseResolveReply(String reply) {
 		String[] lines = reply.split("\n");
@@ -231,16 +311,10 @@ public class Client extends Thread {
 		System.out.println("Command Info");
 		System.out.println("help\n" +
 				"\t(Show this menu)");
-		System.out.println("ls\n" +
-				"\t(List files in this directory)");
-		System.out.println("cd\n" +
-				"\t(Changed Directory)");
-		System.out.println("cd ..\n" +
-				"\t(Go back one directory)");
-		System.out.println("mkdir <name>\n" +
-				"\t(Make a new directory name <name>)");
-		System.out.println("touch <name>\n" +
-				"\t(Make a new file named <name>)");
+		System.out.println("write <path>/<file> <data>\n" +
+				"\tWrite <data> to <file> located in <path>");
+		System.out.println("read <path>/<file>\n" +
+				"\tRead <file> located in <path>");
 		System.out.println("<--Help End-->");
 	}
 }
