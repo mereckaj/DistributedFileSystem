@@ -1,9 +1,10 @@
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import javax.xml.bind.DatatypeConverter;
 
 public class Client extends Thread {
 	private static final int RECEIVE_BUFFER_SIZE = 65536;
@@ -95,7 +96,7 @@ public class Client extends Thread {
 				return;
 			}
 
-			String decodedFileData = new String(Base64.decode(encodedFileData));
+			String decodedFileData = DatatypeConverter.printBase64Binary(encodedFileData.getBytes());
 			System.out.println("Data: " + decodedFileData);
 
 		} catch (IOException e) {
@@ -105,7 +106,7 @@ public class Client extends Thread {
 	}
 
 	private String getDataFromFileService(ServiceInfo fileServiceInfo, String dir, String file, Socket s) {
-		BufferedOutputStream bos = null;
+		BufferedOutputStream bos ;
 		String result = null;
 		try{
 			bos = new BufferedOutputStream(s.getOutputStream());
@@ -136,7 +137,7 @@ public class Client extends Thread {
 	}
 
 	private ServiceInfo resolveFileServer(String dir, String file, Socket s) {
-		BufferedOutputStream bos = null;
+		BufferedOutputStream bos;
 		ServiceInfo si = null;
 
 		try {
@@ -164,7 +165,7 @@ public class Client extends Thread {
 	private String readMessage(InputStreamReader isr) {
 		char[] buffer = new char[RECEIVE_BUFFER_SIZE];
 		char[] result = null;
-		int read = 0;
+		int read;
 		boolean get = true;
 
 		while (get) {

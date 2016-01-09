@@ -1,9 +1,6 @@
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,7 +41,7 @@ public class FileManager {
 			Files.createDirectories(Paths.get(root+dir+file).getParent());
 			FileOutputStream fos = new FileOutputStream(f);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
-			bos.write(Base64.decode(data));
+			bos.write(DatatypeConverter.parseBase64Binary(data));
 			bos.flush();
 			bos.close();
 		} catch (IOException e) {
@@ -71,7 +68,7 @@ public class FileManager {
 			System.out.println("Created BIS");
 			bis.read(data,0,data.length);
 			System.out.println("Read in data");
-			result = Base64.encode(data);
+			result = DatatypeConverter.printBase64Binary(data);
 			System.out.println("Encoded data");
 			bis.close();
 			fis.close();

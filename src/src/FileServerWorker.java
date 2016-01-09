@@ -1,6 +1,7 @@
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class FileServerWorker implements Runnable {
@@ -99,7 +100,7 @@ public class FileServerWorker implements Runnable {
 	}
 
 	private String readMessage() {
-		String line = "";
+		String line;
 		String response = "";
 		try {
 			while ((line = br.readLine()) != null) {
