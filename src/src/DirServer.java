@@ -8,6 +8,7 @@ public class DirServer implements Runnable {
 	private ServerSocket serverSocket;
 	private ThreadPool<DirServerWorker> threadPool;
 	private boolean running;
+	int taskcount = 0;
 
 	public DirServer(int port, String hostname, int threadPoolSize) {
 		this.port = port;
@@ -29,6 +30,8 @@ public class DirServer implements Runnable {
 			try {
 				DirServerWorker worker = new DirServerWorker(serverSocket.accept());
 				threadPool.addJobToQueue(worker);
+				taskcount++;
+				System.out.println("Task count: " + taskcount);
 				System.out.println("Accepted new connection: " + worker.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
