@@ -27,10 +27,8 @@ public class DirServerWorker implements Runnable {
 
 	@Override
 	public void run() {
-//		while (running) {
-			String m = readMessage();
-			dealWithMessage(m);
-//		}
+		String m = readMessage();
+		dealWithMessage(m);
 	}
 
 	private void dealWithMessage(String message) {

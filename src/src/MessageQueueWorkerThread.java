@@ -22,6 +22,7 @@ public class MessageQueueWorkerThread extends Thread {
 				String m = messageQueue.take();
 				osw.write(m, 0, m.length());
 				osw.flush();
+				System.out.println("Wrote message: " + m);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

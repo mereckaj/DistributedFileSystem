@@ -166,6 +166,7 @@ public class Client extends Thread {
 		char[] result = null;
 		int read = 0;
 		boolean get = true;
+
 		while (get) {
 			try {
 				read = isr.read(buffer, 0, buffer.length);

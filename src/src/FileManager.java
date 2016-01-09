@@ -62,13 +62,20 @@ public class FileManager {
 			System.out.println("Reading: " + root + dir + file);
 			lock.lock();
 			File f = new File(root + dir + file);
+			System.out.println("Opened file");
 			byte[] data = new byte[(int) f.length()];
+			System.out.println("Created buffer");
 			FileInputStream fis = new FileInputStream(f);
+			System.out.println("Created FIS");
 			BufferedInputStream bis = new BufferedInputStream(fis);
+			System.out.println("Created BIS");
 			bis.read(data,0,data.length);
+			System.out.println("Read in data");
 			result = Base64.encode(data);
+			System.out.println("Encoded data");
 			bis.close();
 			fis.close();
+			System.out.println("Closed Streams");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

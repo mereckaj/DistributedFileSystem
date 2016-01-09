@@ -91,7 +91,9 @@ public class FileServerWorker implements Runnable {
 			message += "EXISTS:FALSE\n" +
 					"DATA: ";
 		}
+		System.out.println("Message prepared");
 		msqw.addMessageToQueue(message);
+		System.out.println("Message added to send queue");
 	}
 
 	private String readMessage() {
