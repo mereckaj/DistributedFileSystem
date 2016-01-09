@@ -12,9 +12,9 @@ public class ThreadPool<T extends Runnable> {
 	}
 
 	public void addJobToQueue(T t) {
-		Future<String> res = (Future<String>) executorService.submit(t);
+		Future<?> res = executorService.submit(t);
 		try{
-			display(res.get());
+			display((String) res.get());
 		}catch (ExecutionException e){
 			e.printStackTrace();
 			System.out.println("Future exception");
