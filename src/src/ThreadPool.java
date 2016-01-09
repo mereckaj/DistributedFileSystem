@@ -1,6 +1,8 @@
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ThreadPool<T extends Runnable> {
 	public ExecutorService executorService;
@@ -10,10 +12,21 @@ public class ThreadPool<T extends Runnable> {
 	}
 
 	public void addJobToQueue(T t) {
-		executorService.execute(t);
-		System.out.println("Executed job: " + t.toString());
+		Future<String> res = (Future<String>) executorService.submit(t);
+		try{
+			display(res.get());
+		}catch (ExecutionException e){
+			e.printStackTrace();
+			System.out.println("Future exception");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.out.println("Future exception");
+		}
 	}
 
+	private void display(String s){
+		System.out.println("Future result: " + s);
+	}
 	public void terminate() {
 		executorService.shutdownNow();
 	}

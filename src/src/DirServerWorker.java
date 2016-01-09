@@ -13,8 +13,9 @@ public class DirServerWorker implements Runnable {
 	private boolean running;
 	private static final int RECEIVE_BUFFER_SIZE = 65536;
 	private static FileMapper fm = FileMapper.getInstance();
+	private int taskID = 0;
 
-	public DirServerWorker(Socket s) {
+	public DirServerWorker(Socket s,int task) {
 		try {
 			isr = new InputStreamReader(s.getInputStream());
 			osw = new OutputStreamWriter(s.getOutputStream());
@@ -23,6 +24,7 @@ public class DirServerWorker implements Runnable {
 			running = true;
 			socket = s;
 			msqw.start();
+			taskID = task;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -30,12 +32,14 @@ public class DirServerWorker implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("Started task: " + taskID);
 		String m = readMessage();
 		dealWithMessage(m);
+		System.out.println("Finished task: " + taskID);
 	}
 
 	private void dealWithMessage(String message) {
-		System.out.println("command:\n" + message);
+//		System.out.println("command:\n" + message);
 		String[] commands;
 		if (message != null && message.length() > 1) {
 			commands = message.split("\n");
@@ -54,7 +58,7 @@ public class DirServerWorker implements Runnable {
 			} else {
 				throw new Exception();
 			}
-			terminate();
+//			terminate();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Invalid command: " + message);
@@ -71,7 +75,7 @@ public class DirServerWorker implements Runnable {
 				message += "DIR_R:" + x.key + "\n";
 			}
 		}
-		System.out.println("LIST:" + message);
+//		System.out.println("LIST:" + message);
 		msqw.addMessageToQueue(message);
 	}
 
@@ -116,7 +120,7 @@ public class DirServerWorker implements Runnable {
 					"PORT:" + si.port + "\n";
 		}
 		msqw.addMessageToQueue(message);
-		System.out.println(message);
+//		System.out.println(message);
 	}
 
 	private String readMessage() {
@@ -124,7 +128,7 @@ public class DirServerWorker implements Runnable {
 		String response = "";
 		try {
 			while ((line = br.readLine()) != null) {
-				System.out.println(line);
+//				System.out.println(line);
 				response = response + line + "\n";
 				if (!br.ready()) {
 					break;

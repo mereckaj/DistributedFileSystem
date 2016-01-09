@@ -22,16 +22,17 @@ public class DirServer implements Runnable {
 			System.exit(1);
 		}
 	}
-
 	@Override
 	public void run() {
 		running = true;
 		while (running) {
 			try {
-				DirServerWorker worker = new DirServerWorker(serverSocket.accept());
+				System.out.println("Waiting for new connection");
+				System.out.println("------------------------");
+				System.out.println("Task count: " + taskcount);
+				DirServerWorker worker = new DirServerWorker(serverSocket.accept(),taskcount);
 				threadPool.addJobToQueue(worker);
 				taskcount++;
-				System.out.println("Task count: " + taskcount);
 				System.out.println("Accepted new connection: " + worker.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
