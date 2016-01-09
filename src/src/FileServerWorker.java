@@ -1,8 +1,6 @@
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class FileServerWorker implements Runnable {
@@ -12,15 +10,21 @@ public class FileServerWorker implements Runnable {
 	private MessageQueueWorkerThread msqw;
 	private boolean running;
 	private static final int RECEIVE_BUFFER_SIZE = 65536;
+	private static final int SOCKET_TIMEOUT = 5000;
 	private static FileManager fm = FileManager.getInstance();
+	private BufferedReader br;
+	private StringBuilder sb;
 
 	public FileServerWorker(Socket s) {
 		try {
 			isr = new InputStreamReader(s.getInputStream());
 			osw = new OutputStreamWriter(s.getOutputStream());
 			msqw = new MessageQueueWorkerThread(osw);
+			br = new BufferedReader(isr);
+			sb = new StringBuilder();
 			running = true;
 			socket = s;
+			socket.setSoTimeout(SOCKET_TIMEOUT);
 			msqw.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -29,10 +33,8 @@ public class FileServerWorker implements Runnable {
 
 	@Override
 	public void run() {
-		while (running) {
 			String m = readMessage();
 			dealWithMessage(m);
-		}
 	}
 
 	private void dealWithMessage(String message) {
@@ -97,27 +99,20 @@ public class FileServerWorker implements Runnable {
 	}
 
 	private String readMessage() {
-		char[] buffer = new char[RECEIVE_BUFFER_SIZE];
-		char[] result = null;
-		int read = 0;
-		boolean get = true;
-		while (get) {
-			try {
-				if (socket.isClosed()) {
-					terminate();
-					return "";
+		String line = "";
+		String response = "";
+		try {
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+				response = response + line + "\n";
+				if (!br.ready()) {
+					break;
 				}
-				read = isr.read(buffer, 0, buffer.length);
-				if (read > 0) {
-					result = new char[read];
-					System.arraycopy(buffer, 0, result, 0, read);
-					get = false;
-				}
-			} catch (IOException e) {
-				get = false;
 			}
+		}catch (IOException e){
+			e.printStackTrace();
 		}
-		return new String(result);
+		return response;
 	}
 
 	public void terminate() {

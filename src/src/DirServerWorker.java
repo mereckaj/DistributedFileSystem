@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -8,6 +9,7 @@ public class DirServerWorker implements Runnable {
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
 	private MessageQueueWorkerThread msqw;
+	private BufferedReader br;
 	private boolean running;
 	private static final int RECEIVE_BUFFER_SIZE = 65536;
 	private static FileMapper fm = FileMapper.getInstance();
@@ -17,6 +19,7 @@ public class DirServerWorker implements Runnable {
 			isr = new InputStreamReader(s.getInputStream());
 			osw = new OutputStreamWriter(s.getOutputStream());
 			msqw = new MessageQueueWorkerThread(osw);
+			br = new BufferedReader(isr);
 			running = true;
 			socket = s;
 			msqw.start();
@@ -117,27 +120,20 @@ public class DirServerWorker implements Runnable {
 	}
 
 	private String readMessage() {
-		char[] buffer = new char[RECEIVE_BUFFER_SIZE];
-		char[] result = null;
-		int read = 0;
-		boolean get = true;
-		while (get) {
-			try {
-				if (socket.isClosed()) {
-					terminate();
-					return "";
+		String line = "";
+		String response = "";
+		try {
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+				response = response + line + "\n";
+				if (!br.ready()) {
+					break;
 				}
-				read = isr.read(buffer, 0, buffer.length);
-				if (read > 0) {
-					result = new char[read];
-					System.arraycopy(buffer, 0, result, 0, read);
-					get = false;
-				}
-			} catch (IOException e) {
-				get = false;
 			}
+		}catch (IOException e){
+			e.printStackTrace();
 		}
-		return new String(result);
+		return response;
 	}
 
 	public void terminate() {

@@ -1,4 +1,4 @@
 READ_REQUEST:
-DIR: /etc/test/
+DIR: /
 FILE: test.txt
 
