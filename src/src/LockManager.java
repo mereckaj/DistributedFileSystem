@@ -1,12 +1,13 @@
 import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LockManager {
 	private static LockManager instance = new LockManager();
-	private static HashMap<String, SpinToWInLock> map;
+	private CopyOnWriteArrayList<String> list;
 
 	private LockManager() {
 		if (instance == null) {
-			map = new HashMap<>();
+			list = new CopyOnWriteArrayList<String>();
 		}
 	}
 
@@ -14,36 +15,20 @@ public class LockManager {
 		return instance;
 	}
 
-	public synchronized void lock(String file, String dir, Thread t) {
+	public boolean lock(String file, String dir) {
 		dir = validate(dir);
-		System.out.println("Checking if lock exists for: " + dir + "" + file);
-		if (map.containsKey(dir + file)) {
-			System.out.println("Found lock for: " + dir + "" + file);
-			map.get(dir + file).lock(t);
-		} else {
-			System.out.println("No lock for: " + dir + "" + file);
-			map.put(dir + file, new SpinToWInLock());
-			map.get(dir + file).lock(t);
-		}
-		System.out.println("Acquired the lock");
-	}
-
-	public synchronized void unlock(String file, String dir) {
-		dir = validate(dir);
-		if(map.containsKey(dir+file)){
-			System.out.println("Unlock found");
-			map.get(dir + file).unlock();
+		if (list.contains(dir + file)) {
+			return false;
 		}else{
-			System.out.println("Unlock not found");
+			list.add(dir+ file);
+			return true;
 		}
 	}
 
-	public int isLocked(String file, String dir) {
+	public void unlock(String file, String dir) {
 		dir = validate(dir);
-		if (map.containsKey(dir + file)) {
-			return 1;
-		} else {
-			return 0;
+		if(list.contains(dir+file)){
+			list.remove(dir + file);
 		}
 	}
 

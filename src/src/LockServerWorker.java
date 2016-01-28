@@ -53,8 +53,6 @@ public class LockServerWorker implements Runnable {
 				doUnlock(commands);
 			} else if (commands[0].contains("LOCK_FILE")) {
 				doLock(commands);
-			} else if (commands[0].contains("IS_LOCKED")) {
-				doCheckIfLocked(commands);
 			} else {
 				throw new Exception();
 			}
@@ -62,16 +60,6 @@ public class LockServerWorker implements Runnable {
 			e.printStackTrace();
 			System.err.println("Invalid command: " + message);
 		}
-	}
-
-	private void doCheckIfLocked(String[] commands) {
-		String dir = commands[1].split(":")[1].trim();
-		String file = commands[2].split(":")[1].trim();
-		System.out.println("Checking: " + dir + "" + file);
-		int locked = lockManager.isLocked(file, dir);
-		String message = prepareLockCheckMessage(locked, dir, file);
-		msqw.addMessageToQueue(message);
-		System.out.println("Check reply sent: " + dir + "" + file);
 	}
 
 	private String prepareLockCheckMessage(int locked, String dir, String file) {
@@ -86,16 +74,17 @@ public class LockServerWorker implements Runnable {
 		String dir = commands[1].split(":")[1].trim();
 		String file = commands[2].split(":")[1].trim();
 		System.out.println("Locking: " + dir + "" + file);
-		lockManager.lock(file, dir, Thread.currentThread());
-		String message = prepareLockedReponse(file, dir);
+		boolean successful = lockManager.lock(file, dir);
+		String message = prepareLockedResponse(file, dir,successful);
 		msqw.addMessageToQueue(message);
 		System.out.println("Send reply");
 	}
 
-	private String prepareLockedReponse(String file, String dir) {
+	private String prepareLockedResponse(String file, String dir, boolean result) {
 		return "LOCK_ACCESS:\n" +
 				"DIR:" + dir + "\n" +
-				"FILE:" + file + "\n";
+				"FILE:" + file + "\n" +
+				"SUCCESS:" + (result == true ? "TRUE" : "FALSE") + "\n";
 	}
 
 	private void doUnlock(String[] commands) {
@@ -104,7 +93,6 @@ public class LockServerWorker implements Runnable {
 		System.out.println("Unlocking: " + dir + file);
 		lockManager.unlock(file, dir);
 		System.out.println("Unlocked: " + dir + file);
-		msqw.addMessageToQueue("UNLOCKED_THE_FUCKING_LOCK");
 	}
 
 	private String readMessage() {
