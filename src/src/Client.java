@@ -44,11 +44,49 @@ public class Client extends Thread {
 				doReadCommand(commands);
 			} else if (commands[0].equalsIgnoreCase("help")) {
 				doHelpCommand(commands);
+			} else if (commands[0].equalsIgnoreCase("lock")) {
+				doLockCommand(commands);
+			} else if (commands[0].equalsIgnoreCase("unlock")) {
+				doUnlockCommand(commands);
 			} else {
 				throw new Exception("Unrecognized command");
 			}
 		} catch (Exception e) {
 			System.err.println("Invalid command: " + userInput);
+		}
+	}
+
+	private void doUnlockCommand(String[] commands) {
+		try {
+			Socket socketToDirService = new Socket(InetAddress.getByName("0.0.0.0"), 8085);
+			System.out.println("Connected to server: " + dirServer.ip + ":" + dirServer.port);
+
+			String message = "UNLOCK_FILE:\n" +
+					"DIR: /etc/\n" +
+					"FILE: test.txt\n";
+
+			socketToDirService.getOutputStream().write(message.getBytes(),0,message.length());
+			socketToDirService.getOutputStream().flush();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void doLockCommand(String[] commands) {
+		try {
+			Socket socketToDirService = new Socket(InetAddress.getByName("0.0.0.0"), 8085);
+			System.out.println("Connected to server: " + dirServer.ip + ":" + dirServer.port);
+
+			String message = "LOCK_FILE:\n" +
+					"DIR: /etc/\n" +
+					"FILE: test.txt\n";
+
+			socketToDirService.getOutputStream().write(message.getBytes(),0,message.length());
+			socketToDirService.getOutputStream().flush();
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -66,7 +104,7 @@ public class Client extends Thread {
 	}
 
 	private void doWriteCommand(String[] commands) {
-		if(commands.length < 3){
+		if (commands.length < 3) {
 			System.out.println("Too few arguments\t WRITE location/file data");
 			return;
 		}
@@ -87,20 +125,20 @@ public class Client extends Thread {
 				return;
 			}
 
-			Socket socketToFileService = new Socket(InetAddress.getByName(fileServiceInfo.ip),fileServiceInfo.port);
+			Socket socketToFileService = new Socket(InetAddress.getByName(fileServiceInfo.ip), fileServiceInfo.port);
 
-			String data ="";
-			for(int i = 2; i < commands.length; i++){
+			String data = "";
+			for (int i = 2; i < commands.length; i++) {
 				data += commands[i];
 			}
 
 			String encodedData = DatatypeConverter.printBase64Binary(data.getBytes());
 
-			boolean responseSuccessful = putDataToFileServer(fileServiceInfo,dir,file,encodedData,socketToFileService);
-			if(!responseSuccessful){
+			boolean responseSuccessful = putDataToFileServer(fileServiceInfo, dir, file, encodedData, socketToFileService);
+			if (!responseSuccessful) {
 				System.out.println("Could not write " + dir + "" + file + " with: " + data);
-			}else{
-				System.out.println("Successfully wrote to " + dir + ""+ file);
+			} else {
+				System.out.println("Successfully wrote to " + dir + "" + file);
 			}
 
 		} catch (IOException e) {
@@ -109,16 +147,16 @@ public class Client extends Thread {
 
 	}
 
-	private boolean putDataToFileServer(ServiceInfo si,String dir, String file, String data, Socket s){
+	private boolean putDataToFileServer(ServiceInfo si, String dir, String file, String data, Socket s) {
 		BufferedOutputStream bos;
 		boolean result = false;
-		try{
+		try {
 			bos = new BufferedOutputStream(s.getOutputStream());
 
-			String getFileMessage = createWriteMessage(dir,file,data);
+			String getFileMessage = createWriteMessage(dir, file, data);
 			System.out.println("Prepared a writeRequest");
 
-			bos.write(getFileMessage.getBytes(),0,getFileMessage.length());
+			bos.write(getFileMessage.getBytes(), 0, getFileMessage.length());
 			bos.flush();
 			System.out.println("Sent write request");
 
@@ -148,18 +186,18 @@ public class Client extends Thread {
 			System.out.println("Parsed dir: " + dir);
 			String file = parseFile(commands[1]);
 
-			ServiceInfo fileServiceInfo = resolveFileServer(dir,file,socketToDirService);
-			if(fileServiceInfo==null){
+			ServiceInfo fileServiceInfo = resolveFileServer(dir, file, socketToDirService);
+			if (fileServiceInfo == null) {
 				System.out.println(dir + "" + file + "File does not exist");
 				socketToDirService.close();
 				return;
 			}
 
-			Socket socketToFileService = new Socket(InetAddress.getByName(fileServiceInfo.ip),fileServiceInfo.port);
+			Socket socketToFileService = new Socket(InetAddress.getByName(fileServiceInfo.ip), fileServiceInfo.port);
 
-			String encodedFileData = getDataFromFileService(fileServiceInfo,dir,file,socketToFileService);
+			String encodedFileData = getDataFromFileService(fileServiceInfo, dir, file, socketToFileService);
 
-			if(encodedFileData==null){
+			if (encodedFileData == null) {
 				System.out.println(dir + "" + file + "File does not exist");
 				socketToDirService.close();
 				socketToFileService.close();
@@ -176,15 +214,15 @@ public class Client extends Thread {
 	}
 
 	private String getDataFromFileService(ServiceInfo fileServiceInfo, String dir, String file, Socket s) {
-		BufferedOutputStream bos ;
+		BufferedOutputStream bos;
 		String result = null;
-		try{
+		try {
 			bos = new BufferedOutputStream(s.getOutputStream());
 
-			String getFileMessage = createReadMessage(dir,file);
+			String getFileMessage = createReadMessage(dir, file);
 			System.out.println("Prepared a getRequest");
 
-			bos.write(getFileMessage.getBytes(),0,getFileMessage.length());
+			bos.write(getFileMessage.getBytes(), 0, getFileMessage.length());
 			bos.flush();
 			System.out.println("Send read request");
 
@@ -202,15 +240,15 @@ public class Client extends Thread {
 
 	private String createReadMessage(String dir, String file) {
 		return "READ_REQUEST:\n" +
-				"DIR:"+ dir + "\n" +
+				"DIR:" + dir + "\n" +
 				"FILE:" + file + "\n";
 	}
 
 	private String createWriteMessage(String dir, String file, String data) {
 		return "WRITE_REQUEST:\n" +
-				"DIR:"+ dir + "\n" +
+				"DIR:" + dir + "\n" +
 				"FILE:" + file + "\n" +
-				"DATA:" + data +"\n";
+				"DATA:" + data + "\n";
 	}
 
 	private ServiceInfo resolveFileServer(String dir, String file, Socket s) {
@@ -270,7 +308,7 @@ public class Client extends Thread {
 		return command.substring(0, command.lastIndexOf("/") + 1);
 	}
 
-	private String parseReadReply(String reply){
+	private String parseReadReply(String reply) {
 		String[] lines = reply.split("\n");
 		boolean exists = lines[3].split(":")[1].trim().equalsIgnoreCase("TRUE");
 		System.out.println("exists: " + lines[3] + " -->> " + exists);
@@ -280,12 +318,14 @@ public class Client extends Thread {
 			return null;
 		}
 	}
-	private boolean checkIfWriteSuccessful(String reply){
+
+	private boolean checkIfWriteSuccessful(String reply) {
 		String[] lines = reply.split("\n");
 		boolean exists = lines[3].split(":")[1].trim().equalsIgnoreCase("TRUE");
 		System.out.println("exists: " + lines[3] + " -->> " + exists);
 		return exists;
 	}
+
 	private ServiceInfo parseResolveReply(String reply) {
 		String[] lines = reply.split("\n");
 		boolean exists = lines[3].split(":")[1].trim().equalsIgnoreCase("TRUE");
