@@ -1,12 +1,10 @@
+import javax.xml.bind.DatatypeConverter;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.crypto.Data;
 
 public class Client extends Thread {
 	private static final int RECEIVE_BUFFER_SIZE = 65536;

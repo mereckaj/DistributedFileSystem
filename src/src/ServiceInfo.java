@@ -3,7 +3,7 @@ import java.net.UnknownHostException;
 
 public class ServiceInfo {
 
-	public enum ServiceType {DIR_SERVICE, AUTH_SERVICE, FILE_SERVICE}
+	public enum ServiceType {DIR_SERVICE, AUTH_SERVICE, FILE_SERVICE, LOCK_SERVICE}
 
 
 	public String ip;
